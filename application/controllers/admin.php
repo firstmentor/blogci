@@ -1,45 +1,89 @@
 <?php
 class Admin extends MY_Controller
-{
-   public function index()
-   { 
+{  
 
-   	  //helper load
-   	 // $this->load->helper("url");
-   	 //link tag (helper) load
-   	 //$this->load->helper("html");
+   
+   public function welcome()  
+   {  
+       
 
-       //echo "hello admin";
-
-   	  //$this->load->view('users/articlelist');
-
-
-   	//Load from Library 
-   	$this->load->library('form_validation');
-   	$this->form_validation->set_rules('uname','User Name','required|alpha');  //rule define  validation
-   	$this->form_validation->set_rules('pass','Password','required|max_length[10]');  //rule define validation
-
-   	// read text validation
-
-   	$this->form_validation->set_error_delimiters('<div class="text-danger">','</div>');
+      $this->load->model('Loginmodel');
+      $data['showdata']=$this->Loginmodel->articleList();  //sub object variable store
+      //print_r($data);
+      $this->load->view('admin/dashboard',$data); //key articles
+   }
     
 
+    //add user 
 
+   public function adduser()
+   {
 
-
-   	if($this->form_validation->run()) //run validation
-   	{
-   		echo "Validation successfull";
-   	}
-   	else
-   	{
-   		//echo  validation_errors();  // error show
-   		$this->load->view('users/articlelist.php');  //same page error show validation
-   	}	
-
-
-
+     $this->load->view('admin/add_articles');
 
    }
+    public function userValidation()
+    {
+
+       if($this->form_validation->run('add_article_rules'))
+       {
+           //echo "ok";
+           $post=$this->input->post();
+           // print_r($post);
+           // exit;
+           $this->load->model('Loginmodel');
+           if($this->Loginmodel->add_articles($post))
+           {
+            $this->session->set_flashdata('msg','Articles added Successfully');
+             $this->session->set_flashdata('msg_class','alert-success');
+            //echo  "insert successfully";
+           }
+           else
+           {
+            $this->session->set_flashdata('msg','Articles not added Please try agian');
+             $this->session->set_flashdata('msg_class','alert-danger');
+             return redirect('admin/welcome');
+           }
+
+
+
+       }
+       else
+       {
+        $this->load->view('admin/add_articles');
+       }
+     }
+
+   //register form and sign up
+
+  // public function register()
+  //   {
+      
+  //     $this->load->view('admin/register');
+  //     $this->input->
+  //   }
+    
+  
+ //session check login
+  public function __construct()
+  {
+    parent::__construct();
+    if( ! $this->session->userdata('id') )
+    return redirect('login');
+    
+  }
+  public function logout()
+  {
+    $this->session->unset_userdata('id');
+    return redirect('login');
+  }
+ 
+
+ 
+
+
+
+
+
 	
 }
